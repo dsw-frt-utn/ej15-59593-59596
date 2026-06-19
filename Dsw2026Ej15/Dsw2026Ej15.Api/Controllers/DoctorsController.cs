@@ -36,14 +36,7 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetActiveDoctors()
         {
-            var doctors = _persistence.GetActiveDoctors()
-                .Select(d => new DoctorModel.Response(
-                    d._id,
-                    d._name,
-                    d._licenseNumber,
-                    d._specialty!._name
-                ))
-                .ToList();
+            var doctors = _persistence.GetActiveDoctors().Select(d => new DoctorModel.Response(d.Id, d.Name,d.LicenseNumber, d.Specialty!.Name)).ToList();
 
             return Ok(doctors);
         }
@@ -56,13 +49,20 @@ namespace Dsw2026Ej15.Api.Controllers
             if (doctor is null)
                 return NotFound();
 
-            var response = new DoctorModel.DetailResponse(
-                doctor._name,
-                doctor._licenseNumber,
-                doctor._specialty!._name
-            );
+            var response = new DoctorModel.DetailResponse(doctor.Name, doctor.LicenseNumber, doctor.Specialty!.Name);
 
             return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DesactivateDoctor(Guid id)
+        {
+            var desactivate = _persistence.DesactivateDoctor(id);
+
+            if (!desactivate)
+                return NotFound();
+
+            return NoContent();
         }
 
     }

@@ -10,9 +10,9 @@
            string SpecialityName
         );
         public record DetailResponse(
-        string Name,
-        string LicenseNumber,
-        string SpecialityName
+            string Name,
+            string LicenseNumber,
+            string SpecialityName
         );
     }
 }

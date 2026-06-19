@@ -2,21 +2,21 @@
 {
     public class Doctor : BaseEntity
     {
-        public string _name { get; init; } 
-        public string _licenseNumber { get; init; } 
-        public bool _isActive { get; private set; }
-        public Speciality? _specialty { get; private set; }
+        public string Name { get; init; } 
+        public string LicenseNumber { get; init; } 
+        public bool IsActive { get; private set; }
+        public Speciality? Specialty { get; private set; }
 
         public Doctor(string name, string licenseNumber, Speciality specialty, Guid? id = null) : base(id)
         {
-            _name = name;
-            _licenseNumber = licenseNumber;
-            _specialty = specialty;
-            _isActive = true;
+            Name = name;
+            LicenseNumber = licenseNumber;
+            Specialty = specialty;
+            IsActive = true;
         }
-        public void Inactivate()
+        public void Desactivate()
         {
-            _isActive = false;
+            IsActive = false;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Dsw2026Ej15.Data
 
         public Speciality? GetSpecialityById(Guid id)
         {
-            return _specialities.SingleOrDefault(s => s._id == id);
+            return _specialities.SingleOrDefault(s => s.Id == id);
         }
 
         public void SaveDoctor(Doctor doctor)
@@ -29,14 +29,25 @@ namespace Dsw2026Ej15.Data
         public IEnumerable<Doctor> GetActiveDoctors()
         {
             return _doctors
-                .Where(d => d._isActive)
+                .Where(d => d.IsActive)
                 .ToList();
         }
 
         public Doctor? GetActiveDoctorById(Guid id)
         {
             return _doctors
-                .SingleOrDefault(d => d._id == id && d._isActive);
+                .SingleOrDefault(d => d.Id == id && d.IsActive);
+        }
+
+        public bool DesactivateDoctor(Guid id)
+        {
+            var doctor = _doctors.SingleOrDefault(d => d.Id == id && d.IsActive);
+
+            if (doctor is null)
+                return false;
+
+            doctor.Desactivate();
+            return true;
         }
         private void LoadSpecialities()
         {
@@ -82,7 +93,7 @@ namespace Dsw2026Ej15.Data
                 Guid.Parse("33333333-3333-3333-3333-333333333333")
             );
 
-            doctor3.Inactivate();
+            doctor3.Desactivate();
 
             _doctors.Add(doctor1);
             _doctors.Add(doctor2);
