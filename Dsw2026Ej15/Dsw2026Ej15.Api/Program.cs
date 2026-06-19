@@ -1,6 +1,6 @@
 
 using Dsw2026Ej15.Data;
-using Dsw2026Ej15.Data.Interfaces;
+using Dsw2026Ej15.Domain.Interfaces;
 
 namespace Dsw2026Ej15.Api
 {
