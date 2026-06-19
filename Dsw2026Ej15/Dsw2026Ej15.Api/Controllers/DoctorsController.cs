@@ -62,6 +62,7 @@ namespace Dsw2026Ej15.Api.Controllers
             if (!desactivate)
                 return NotFound();
 
+            _persistence.DesactivateDoctor(id);
             return NoContent();
         }
 
