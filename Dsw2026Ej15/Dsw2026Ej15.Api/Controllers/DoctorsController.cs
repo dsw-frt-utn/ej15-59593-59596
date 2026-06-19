@@ -2,6 +2,7 @@
 using Dsw2026Ej15.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Dsw2026Ej15.Domain.Entities;
+using Dsw2026Ej15.Domain.Exceptions;
 
 
 namespace Dsw2026Ej15.Api.Controllers
@@ -21,11 +22,11 @@ namespace Dsw2026Ej15.Api.Controllers
         public async Task<IActionResult> CreateDoctor(DoctorModel.Request request)
         {
             if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.LicenseNumber))
-                return BadRequest("Nombre y Matrícula son requeridos");
+                throw new ValidationException("Nombre y Matrícula son requeridos");
 
             var speciality = _persistence.GetSpecialityById(request.SpecialityId);
             if (speciality is null)
-                return BadRequest("Especialidad no existe");
+                throw new ValidationException("Especialidad no existe");
 
             var doctor = new Doctor(request.Name, request.LicenseNumber, speciality);
             _persistence.SaveDoctor(doctor);
@@ -36,7 +37,7 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetActiveDoctors()
         {
-            var doctors = _persistence.GetActiveDoctors().Select(d => new DoctorModel.Response(d.Id, d.Name,d.LicenseNumber, d.Specialty!.Name)).ToList();
+            var doctors = _persistence.GetActiveDoctors().Select(d => new DoctorModel.Response(d.Id, d.Name,d.LicenseNumber, d.Speciality!.Name)).ToList();
 
             return Ok(doctors);
         }
@@ -49,7 +50,7 @@ namespace Dsw2026Ej15.Api.Controllers
             if (doctor is null)
                 return NotFound();
 
-            var response = new DoctorModel.DetailResponse(doctor.Name, doctor.LicenseNumber, doctor.Specialty!.Name);
+            var response = new DoctorModel.DetailResponse(doctor.Name, doctor.LicenseNumber, doctor.Speciality!.Name);
 
             return Ok(response);
         }

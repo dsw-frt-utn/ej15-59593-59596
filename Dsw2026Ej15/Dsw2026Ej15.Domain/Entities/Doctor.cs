@@ -5,15 +5,16 @@
         public string Name { get; init; } 
         public string LicenseNumber { get; init; } 
         public bool IsActive { get; private set; }
-        public Speciality? Specialty { get; private set; }
+        public Speciality? Speciality { get; private set; }
 
-        public Doctor(string name, string licenseNumber, Speciality specialty, Guid? id = null) : base(id)
+        public Doctor(string name, string licenseNumber, Speciality speciality, Guid? id = null) : base(id)
         {
             Name = name;
             LicenseNumber = licenseNumber;
-            Specialty = specialty;
+            Speciality = speciality;
             IsActive = true;
         }
+        
         public void Desactivate()
         {
             IsActive = false;
