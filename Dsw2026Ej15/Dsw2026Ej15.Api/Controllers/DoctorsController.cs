@@ -48,6 +48,23 @@ namespace Dsw2026Ej15.Api.Controllers
             return Ok(doctors);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetActiveDoctorById(Guid id)
+        {
+            var doctor = _persistence.GetActiveDoctorById(id);
+
+            if (doctor is null)
+                return NotFound();
+
+            var response = new DoctorModel.DetailResponse(
+                doctor._name,
+                doctor._licenseNumber,
+                doctor._specialty!._name
+            );
+
+            return Ok(response);
+        }
+
     }
 }
 

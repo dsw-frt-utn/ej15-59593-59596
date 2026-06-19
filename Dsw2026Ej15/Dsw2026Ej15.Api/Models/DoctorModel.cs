@@ -8,6 +8,11 @@
            string Name,
            string LicenseNumber,
            string SpecialityName
-       );
+        );
+        public record DetailResponse(
+        string Name,
+        string LicenseNumber,
+        string SpecialityName
+        );
     }
 }

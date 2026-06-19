@@ -33,6 +33,11 @@ namespace Dsw2026Ej15.Data
                 .ToList();
         }
 
+        public Doctor? GetActiveDoctorById(Guid id)
+        {
+            return _doctors
+                .SingleOrDefault(d => d._id == id && d._isActive);
+        }
         private void LoadSpecialities()
         {
             try

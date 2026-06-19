@@ -8,5 +8,7 @@ namespace Dsw2026Ej15.Domain.Interfaces
         void SaveDoctor(Doctor doctor);
 
         IEnumerable<Doctor> GetActiveDoctors();
+
+        Doctor? GetActiveDoctorById(Guid id);
     }
 }
