@@ -1,6 +1,7 @@
 
 using Dsw2026Ej15.Data;
 using Dsw2026Ej15.Domain.Interfaces;
+using Dsw2026Ej15.Api.Middlewares;
 
 namespace Dsw2026Ej15.Api
 {
@@ -25,11 +26,9 @@ namespace Dsw2026Ej15.Api
                 app.UseSwaggerUI();
             }
 
+            app.UseMiddleware<ExceptionMiddlewares>();
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }
