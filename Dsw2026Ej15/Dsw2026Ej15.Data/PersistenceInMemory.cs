@@ -16,30 +16,30 @@ namespace Dsw2026Ej15.Data
             LoadDoctors();
         }
 
-        public Speciality? GetSpecialityById(Guid id)
+        public async Task<Speciality?> GetSpecialityById(Guid id)
         {
             return _specialities.SingleOrDefault(s => s.Id == id);
         }
 
-        public void SaveDoctor(Doctor doctor)
+        public async Task SaveDoctor(Doctor doctor)
         {
             _doctors.Add(doctor);
         }
 
-        public IEnumerable<Doctor> GetActiveDoctors()
+        public async Task<IEnumerable<Doctor>> GetActiveDoctors()
         {
             return _doctors
                 .Where(d => d.IsActive)
                 .ToList();
         }
 
-        public Doctor? GetActiveDoctorById(Guid id)
+        public async Task<Doctor?> GetActiveDoctorById(Guid id)
         {
             return _doctors
                 .SingleOrDefault(d => d.Id == id && d.IsActive);
         }
 
-        public bool DesactivateDoctor(Guid id)
+        public async Task<bool> DesactivateDoctor(Guid id)
         {
             var doctor = _doctors.SingleOrDefault(d => d.Id == id && d.IsActive);
 
@@ -48,6 +48,13 @@ namespace Dsw2026Ej15.Data
 
             doctor.Desactivate();
             return true;
+        }
+        public async Task RemoveDoctor(Guid id)
+        {
+            var doctor = _doctors.SingleOrDefault(d => d.Id == id);
+            if (doctor is null)
+                return;
+            _doctors.Remove(doctor);
         }
         private void LoadSpecialities()
         {

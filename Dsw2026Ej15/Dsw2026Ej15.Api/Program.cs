@@ -2,6 +2,7 @@
 using Dsw2026Ej15.Data;
 using Dsw2026Ej15.Domain.Interfaces;
 using Dsw2026Ej15.Api.Middlewares;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dsw2026Ej15.Api
 {
@@ -13,9 +14,16 @@ namespace Dsw2026Ej15.Api
 
             // Add services to the container.
 
+            var connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=Dsw2026Ej16;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True";
+
+            builder.Services.AddDbContext<Dsw2026Ej15DbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
+
             builder.Services.AddControllers();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddSingleton<IPersistence, PersistenceInMemory>();
+            builder.Services.AddScoped<IPersistence, PersistenceEf>();
             builder.Services.AddHealthChecks();
 
             var app = builder.Build();

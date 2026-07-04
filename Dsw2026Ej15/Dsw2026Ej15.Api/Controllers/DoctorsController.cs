@@ -24,12 +24,12 @@ namespace Dsw2026Ej15.Api.Controllers
             if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.LicenseNumber))
                 throw new ValidationException("Nombre y Matrícula son requeridos");
 
-            var speciality = _persistence.GetSpecialityById(request.SpecialityId);
+            var speciality = await _persistence.GetSpecialityById(request.SpecialityId);
             if (speciality is null)
                 throw new ValidationException("Especialidad no existe");
 
             var doctor = new Doctor(request.Name, request.LicenseNumber, speciality);
-            _persistence.SaveDoctor(doctor);
+            await _persistence.SaveDoctor(doctor);
 
             return Created();
         }
@@ -37,7 +37,7 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetActiveDoctors()
         {
-            var doctors = _persistence.GetActiveDoctors().Select(d => new DoctorModel.Response(d.Id, d.Name,d.LicenseNumber, d.Speciality!.Name)).ToList();
+            var doctors = (await _persistence.GetActiveDoctors()).Select(d => new DoctorModel.Response(d.Id, d.Name,d.LicenseNumber, d.Speciality!.Name)).ToList();
 
             return Ok(doctors);
         }
@@ -45,7 +45,7 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetActiveDoctorById(Guid id)
         {
-            var doctor = _persistence.GetActiveDoctorById(id);
+            var doctor = await _persistence.GetActiveDoctorById(id);
 
             if (doctor is null)
                 return NotFound();
@@ -58,7 +58,7 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DesactivateDoctor(Guid id)
         {
-            var desactivate = _persistence.DesactivateDoctor(id);
+            var desactivate = await _persistence.DesactivateDoctor(id);
 
             if (!desactivate)
                 return NotFound();
