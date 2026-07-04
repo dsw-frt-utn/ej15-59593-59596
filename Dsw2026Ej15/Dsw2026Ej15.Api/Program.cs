@@ -1,28 +1,41 @@
 
+using Dsw2026Ej15.Api.Middlewares;
 using Dsw2026Ej15.Data;
 using Dsw2026Ej15.Domain.Interfaces;
-using Dsw2026Ej15.Api.Middlewares;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dsw2026Ej15.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddSingleton<IPersistence, PersistenceInMemory>();
+
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(
+                    builder.Configuration.GetConnectionString("DefaultConnection")
+                )
+            );
+
+            builder.Services.AddScoped<IPersistence, PersistenceEf>();
+
             builder.Services.AddHealthChecks();
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                await DatabaseSeeder.Seed(context);
+            }
+
             app.UseMiddleware<ExceptionMiddlewares>();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -30,9 +43,12 @@ namespace Dsw2026Ej15.Api
             }
 
             app.UseAuthorization();
+
             app.MapHealthChecks("/health-check");
+
             app.MapControllers();
-            app.Run();
+
+            await app.RunAsync();
         }
     }
 }

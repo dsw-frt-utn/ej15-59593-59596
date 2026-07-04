@@ -1,9 +1,8 @@
 ﻿using Dsw2026Ej15.Api.Models;
-using Dsw2026Ej15.Domain.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Dsw2026Ej15.Domain.Entities;
 using Dsw2026Ej15.Domain.Exceptions;
-
+using Dsw2026Ej15.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Dsw2026Ej15.Api.Controllers
 {
@@ -21,36 +20,65 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateDoctor(DoctorModel.Request request)
         {
-            if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.LicenseNumber))
-                throw new ValidationException("Nombre y Matrícula son requeridos");
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new ValidationException("El nombre es requerido");
 
-            var speciality = _persistence.GetSpecialityById(request.SpecialityId);
+            if (string.IsNullOrWhiteSpace(request.LicenseNumber))
+                throw new ValidationException("La matrícula es requerida");
+
+            var speciality = await _persistence.GetSpecialityById(request.SpecialityId);
+
             if (speciality is null)
-                throw new ValidationException("Especialidad no existe");
+                throw new ValidationException("La especialidad no existe");
 
-            var doctor = new Doctor(request.Name, request.LicenseNumber, speciality);
-            _persistence.SaveDoctor(doctor);
+            var doctor = new Doctor(
+                request.Name,
+                request.LicenseNumber,
+                speciality
+            );
 
-            return Created();
+            await _persistence.SaveDoctor(doctor);
+
+            var response = new DoctorModel.Response(
+                doctor.Id,
+                doctor.Name,
+                doctor.LicenseNumber,
+                doctor.Speciality!.Name
+            );
+
+            return Created($"api/doctors/{doctor.Id}", response);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetActiveDoctors()
         {
-            var doctors = _persistence.GetActiveDoctors().Select(d => new DoctorModel.Response(d.Id, d.Name,d.LicenseNumber, d.Speciality!.Name)).ToList();
+            var doctors = await _persistence.GetActiveDoctors();
 
-            return Ok(doctors);
+            var response = doctors
+                .Select(d => new DoctorModel.Response(
+                    d.Id,
+                    d.Name,
+                    d.LicenseNumber,
+                    d.Speciality!.Name
+                ))
+                .ToList();
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetActiveDoctorById(Guid id)
         {
-            var doctor = _persistence.GetActiveDoctorById(id);
+            var doctor = await _persistence.GetActiveDoctorById(id);
 
             if (doctor is null)
                 return NotFound();
 
-            var response = new DoctorModel.DetailResponse(doctor.Name, doctor.LicenseNumber, doctor.Speciality!.Name);
+            var response = new DoctorModel.DetailResponse(
+                doctor.Name,
+                doctor.LicenseNumber,
+                doctor.Speciality!.Name
+            );
 
             return Ok(response);
         }
@@ -58,14 +86,13 @@ namespace Dsw2026Ej15.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DesactivateDoctor(Guid id)
         {
-            var desactivate = _persistence.DesactivateDoctor(id);
+            var desactivated = await _persistence.DesactivateDoctor(id);
 
-            if (!desactivate)
+            if (!desactivated)
                 return NotFound();
 
             return NoContent();
         }
-
     }
 }
 
