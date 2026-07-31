@@ -1,46 +1,54 @@
-
+using Dsw2026Ej15.Api.Middlewares;
 using Dsw2026Ej15.Data;
 using Dsw2026Ej15.Domain.Interfaces;
-using Dsw2026Ej15.Api.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dsw2026Ej15.Api
+namespace Dsw2026Ej15.Api;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("No se encontró la cadena de conexión DefaultConnection.");
+
+        builder.Services.AddDbContext<Dsw2026Ej15DbContext>(options =>
         {
-            var builder = WebApplication.CreateBuilder(args);
+            options.UseSqlServer(connectionString);
+        });
 
-            // Add services to the container.
+        builder.Services.AddControllers();
+        builder.Services.AddSwaggerGen();
 
-            var connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=Dsw2026Ej16;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True";
+        builder.Services.AddScoped<IPersistence, PersistenceEf>();
 
-            builder.Services.AddDbContext<Dsw2026Ej15DbContext>(options =>
-            {
-                options.UseSqlServer(connectionString);
-            });
+        builder.Services.AddHealthChecks();
 
-            builder.Services.AddControllers();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IPersistence, PersistenceEf>();
-            builder.Services.AddHealthChecks();
+        var app = builder.Build();
 
-            var app = builder.Build();
+        // Aplica las migraciones y carga las especialidades.
+        using (var scope = app.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<Dsw2026Ej15DbContext>();
 
-            app.UseMiddleware<ExceptionMiddlewares>();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseAuthorization();
-            app.MapHealthChecks("/health-check");
-            app.MapControllers();
-            app.Run();
+            await DatabaseSeeder.Seed(context);
         }
+
+        app.UseMiddleware<ExceptionMiddlewares>();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseAuthorization();
+
+        app.MapHealthChecks("/health-check");
+        app.MapControllers();
+
+        await app.RunAsync();
     }
 }
